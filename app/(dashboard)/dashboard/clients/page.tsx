@@ -38,9 +38,10 @@ const EMPTY_FORM = {
   tax_id: '',
   pic_name: '',
   pic_email: '',
+  pic_email: '',
   pic_phone: '',
-  status: 'active' as const,
-  tax_status: 'compliant' as const,
+  status: 'active' as 'active' | 'at_risk' | 'on_hold',
+  tax_status: 'compliant' as 'compliant' | 'needs_review' | 'pending_audit',
   notes: '',
 };
 
