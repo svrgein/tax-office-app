@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { FileText, PencilLine, Trash2, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { FileText, MoreHorizontal, PencilLine, Trash2, Eye } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -41,15 +41,40 @@ function StatusBadge({ value }: { value: string }) {
   );
 }
 
-function ActionButton({ children, onClick }: { children: ReactNode; onClick: () => void }) {
+function ActionMenu({ client, onView, onEdit, onDelete, onUpload }: { client: Client; onView: (client: Client) => void; onEdit: (client: Client) => void; onDelete: (client: Client) => void; onUpload: (client: Client) => void }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded-xl border border-border/70 bg-background/70 p-2 text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-    >
-      {children}
-    </button>
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="rounded-xl border border-border/70 bg-background/70 p-2 text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+      >
+        <MoreHorizontal className="h-4 w-4" />
+      </button>
+
+      {open ? (
+        <div className="absolute right-0 z-10 mt-2 w-44 rounded-2xl border border-border/70 bg-card p-2 shadow-lg">
+          <button type="button" onClick={() => { onView(client); setOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-foreground hover:bg-muted/70">
+            <Eye className="h-4 w-4" />
+            Lihat detail
+          </button>
+          <button type="button" onClick={() => { onEdit(client); setOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-foreground hover:bg-muted/70">
+            <PencilLine className="h-4 w-4" />
+            Edit klien
+          </button>
+          <button type="button" onClick={() => { onUpload(client); setOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-foreground hover:bg-muted/70">
+            <FileText className="h-4 w-4" />
+            Unggah dokumen
+          </button>
+          <button type="button" onClick={() => { onDelete(client); setOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10">
+            <Trash2 className="h-4 w-4" />
+            Hapus
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -60,16 +85,16 @@ export function ClientTable({ clients, onView, onEdit, onDelete, onUpload }: Cli
         <table className="min-w-full divide-y divide-border/70 text-left">
           <thead className="bg-muted/60">
             <tr>
-              <th className="px-4 py-3 text-sm font-semibold text-foreground">Company Name</th>
+              <th className="px-4 py-3 text-sm font-semibold text-foreground">Nama Perusahaan</th>
               <th className="px-4 py-3 text-sm font-semibold text-foreground">NPWP</th>
               <th className="px-4 py-3 text-sm font-semibold text-foreground">PIC</th>
-              <th className="px-4 py-3 text-sm font-semibold text-foreground">Phone</th>
+              <th className="px-4 py-3 text-sm font-semibold text-foreground">Telepon</th>
               <th className="px-4 py-3 text-sm font-semibold text-foreground">Email</th>
-              <th className="px-4 py-3 text-sm font-semibold text-foreground">Tax Status</th>
-              <th className="px-4 py-3 text-sm font-semibold text-foreground">Active Jobs</th>
-              <th className="px-4 py-3 text-sm font-semibold text-foreground">Next Deadline</th>
+              <th className="px-4 py-3 text-sm font-semibold text-foreground">Status Pajak</th>
+              <th className="px-4 py-3 text-sm font-semibold text-foreground">Pekerjaan Aktif</th>
+              <th className="px-4 py-3 text-sm font-semibold text-foreground">Deadline Berikutnya</th>
               <th className="px-4 py-3 text-sm font-semibold text-foreground">Status</th>
-              <th className="px-4 py-3 text-sm font-semibold text-foreground">Actions</th>
+              <th className="px-4 py-3 text-sm font-semibold text-foreground">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/70 bg-background/50">
@@ -87,12 +112,7 @@ export function ClientTable({ clients, onView, onEdit, onDelete, onUpload }: Cli
                 <td className="px-4 py-3 text-sm text-muted-foreground">{client.nextDeadline}</td>
                 <td className="px-4 py-3"><StatusBadge value={client.status} /></td>
                 <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-2">
-                    <ActionButton onClick={() => onView(client)}><Eye className="h-4 w-4" /></ActionButton>
-                    <ActionButton onClick={() => onEdit(client)}><PencilLine className="h-4 w-4" /></ActionButton>
-                    <ActionButton onClick={() => onDelete(client)}><Trash2 className="h-4 w-4" /></ActionButton>
-                    <ActionButton onClick={() => onUpload(client)}><FileText className="h-4 w-4" /></ActionButton>
-                  </div>
+                  <ActionMenu client={client} onView={onView} onEdit={onEdit} onDelete={onDelete} onUpload={onUpload} />
                 </td>
               </tr>
             ))}
@@ -114,15 +134,12 @@ export function ClientTable({ clients, onView, onEdit, onDelete, onUpload }: Cli
               <p>NPWP: {client.npwp}</p>
               <p>{client.phone}</p>
               <p>{client.email}</p>
-              <p>Tax Status: {client.taxStatus}</p>
-              <p>Active Jobs: {client.activeJobs}</p>
-              <p>Next Deadline: {client.nextDeadline}</p>
+              <p>Status Pajak: {client.taxStatus}</p>
+              <p>Pekerjaan Aktif: {client.activeJobs}</p>
+              <p>Deadline Berikutnya: {client.nextDeadline}</p>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <ActionButton onClick={() => onView(client)}><Eye className="h-4 w-4" /></ActionButton>
-              <ActionButton onClick={() => onEdit(client)}><PencilLine className="h-4 w-4" /></ActionButton>
-              <ActionButton onClick={() => onDelete(client)}><Trash2 className="h-4 w-4" /></ActionButton>
-              <ActionButton onClick={() => onUpload(client)}><FileText className="h-4 w-4" /></ActionButton>
+              <ActionMenu client={client} onView={onView} onEdit={onEdit} onDelete={onDelete} onUpload={onUpload} />
             </div>
           </div>
         ))}

@@ -2,11 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { CookieOptions } from "@supabase/ssr";
 
-/**
- * Refreshes the Supabase auth session on every request and keeps
- * cookies in sync between the request and the response.
- * Route protection (redirects) is added when the Authentication module is built.
- */
+const PUBLIC_PATHS = ["/auth/login", "/auth/callback", "/auth/signup"];
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -31,9 +28,27 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Refreshes the session if expired. Required for Server Components,
-  // which cannot write cookies themselves.
-  await supabase.auth.getUser();
+  // Refresh session and get user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+  const isPublicPath = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+
+  // Redirect unauthenticated users to login
+  if (!user && !isPublicPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/login";
+    return NextResponse.redirect(url);
+  }
+
+  // Redirect authenticated users away from login page
+  if (user && pathname.startsWith("/auth/login")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }

@@ -1,12 +1,12 @@
 import { createBrowserClient } from "@supabase/ssr";
-import type { Database } from "@/types/database.types";
 
 /**
  * Supabase client for use in Client Components.
- * Call this inside a component/hook — do not use as a singleton across requests.
+ * Using untyped client to avoid Database generic inference issues.
+ * All table types are defined manually in types/database.types.ts
  */
 export function createClient() {
-  return createBrowserClient<Database>(
+  return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );

@@ -1,16 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import type { CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { Database } from "@/types/database.types";
 
 /**
  * Supabase client for use in Server Components, Server Actions, and Route Handlers.
- * Must be created fresh per request (reads the request's cookies).
+ * Using untyped client — table types come from database.types.ts directly.
  */
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient<Database>(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

@@ -1,0 +1,128 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import { Download, Paperclip, PlusCircle, Search } from 'lucide-react';
+
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { ConfirmDialog } from '@/components/shared/ui/confirm-dialog';
+import { EmptyStateCard } from '@/components/shared/ui/empty-state-card';
+import { LoadingTable } from '@/components/shared/ui/loading-table';
+import { PageShell } from '@/components/shared/ui/page-shell';
+import { ToastPlaceholder } from '@/components/shared/ui/toast-placeholder';
+
+const expensesSeed = [
+  { id: 1, client: 'PT Bintang Abadi', category: 'Software', description: 'Cloud accounting subscription', debit: 'Rp 4.8M', credit: '-', balance: 'Rp 4.8M', date: '2026-07-24', attachment: 'receipt.pdf' },
+  { id: 2, client: 'CV Sinar Mandiri', category: 'Operations', description: 'Office supplies and printing', debit: 'Rp 2.1M', credit: '-', balance: 'Rp 6.9M', date: '2026-07-22', attachment: 'invoice.pdf' },
+  { id: 3, client: 'PT Citra Arta', category: 'Travel', description: 'Client meeting transport', debit: '-', credit: 'Rp 1.2M', balance: 'Rp 5.7M', date: '2026-07-21', attachment: 'none' },
+];
+
+export default function ExpensesPage() {
+  const [search, setSearch] = useState('');
+  const [clientFilter, setClientFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLoading(false), 600);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const filtered = useMemo(() => {
+    const query = search.toLowerCase();
+    return expensesSeed.filter((expense) => {
+      const matchesQuery = expense.client.toLowerCase().includes(query) || expense.description.toLowerCase().includes(query) || expense.category.toLowerCase().includes(query);
+      const matchesClient = clientFilter === 'all' || expense.client === clientFilter;
+      const matchesDate = dateFilter === 'all' || expense.date === dateFilter;
+      return matchesQuery && matchesClient && matchesDate;
+    });
+  }, [search, clientFilter, dateFilter]);
+
+  return (
+    <DashboardShell>
+      <PageShell
+        badge="Client Expenses"
+        title="Track client expenses and balance flow"
+        description="Maintain a clear audit trail of spend, refunds, and your running balance history."
+        action={
+          <button className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add expense
+          </button>
+        }
+      >
+        <div className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-sm">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <label className="flex items-center gap-2 rounded-2xl border border-border/70 bg-background/70 px-3 py-2 text-sm text-muted-foreground lg:min-w-[300px]">
+              <Search className="h-4 w-4" />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search expense, client, category" className="w-full border-none bg-transparent outline-none" />
+            </label>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <select value={clientFilter} onChange={(event) => setClientFilter(event.target.value)} className="rounded-2xl border border-border/70 bg-background/70 px-3 py-2 text-sm text-foreground">
+                <option value="all">All clients</option>
+                <option value="PT Bintang Abadi">PT Bintang Abadi</option>
+                <option value="CV Sinar Mandiri">CV Sinar Mandiri</option>
+                <option value="PT Citra Arta">PT Citra Arta</option>
+              </select>
+              <select value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className="rounded-2xl border border-border/70 bg-background/70 px-3 py-2 text-sm text-foreground">
+                <option value="all">All dates</option>
+                <option value="2026-07-24">2026-07-24</option>
+                <option value="2026-07-22">2026-07-22</option>
+                <option value="2026-07-21">2026-07-21</option>
+              </select>
+              <button className="inline-flex items-center justify-center rounded-2xl border border-border/70 bg-background/70 px-3 py-2 text-sm font-medium text-foreground">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </button>
+            </div>
+          </div>
+
+          {loading ? (
+            <LoadingTable />
+          ) : filtered.length === 0 ? (
+            <div className="mt-4">
+              <EmptyStateCard title="No expenses match this view" description="Try another client or date filter to continue." />
+            </div>
+          ) : (
+            <div className="mt-4 overflow-hidden rounded-[20px] border border-border/70">
+              <table className="min-w-full divide-y divide-border/70 text-left">
+                <thead className="bg-muted/60">
+                  <tr>
+                    <th className="px-4 py-3 text-sm font-semibold text-foreground">Client</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-foreground">Category</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-foreground">Description</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-foreground">Debit</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-foreground">Credit</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-foreground">Balance</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-foreground">Attachment</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/70 bg-background/50">
+                  {filtered.map((expense) => (
+                    <tr key={expense.id}>
+                      <td className="px-4 py-3 text-sm font-medium text-foreground">{expense.client}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{expense.category}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{expense.description}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{expense.debit}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{expense.credit}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-foreground">{expense.balance}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{expense.attachment === 'none' ? '—' : <span className="inline-flex items-center gap-1"><Paperclip className="h-4 w-4" />{expense.attachment}</span>}</td>
+                      <td className="px-4 py-3">
+                        <button type="button" onClick={() => { setConfirmOpen(true); setToastOpen(false); }} className="rounded-full border border-border/70 px-3 py-2 text-sm font-medium text-foreground">View</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <ConfirmDialog open={confirmOpen} title="Expense selected" description="This is a placeholder confirmation for expense actions." onConfirm={() => { setConfirmOpen(false); setToastOpen(true); window.setTimeout(() => setToastOpen(false), 1800); }} onCancel={() => setConfirmOpen(false)} />
+        <ToastPlaceholder open={toastOpen} message="Expense action triggered" />
+      </PageShell>
+    </DashboardShell>
+  );
+}

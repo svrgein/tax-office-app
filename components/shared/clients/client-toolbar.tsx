@@ -25,8 +25,8 @@ export function ClientToolbar({
     <div className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-sm backdrop-blur md:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">Client portfolio</p>
-          <p className="mt-1 text-2xl font-semibold text-foreground">{totalClients} active clients</p>
+          <p className="text-sm font-medium text-muted-foreground">Portofolio klien</p>
+          <p className="mt-1 text-2xl font-semibold text-foreground">{totalClients} klien aktif</p>
         </div>
 
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
@@ -35,7 +35,7 @@ export function ClientToolbar({
             <input
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
-              placeholder="Search company, PIC, email..."
+              placeholder="Cari perusahaan, PIC, email..."
               className="w-full border-none bg-transparent outline-none placeholder:text-muted-foreground"
             />
           </label>
@@ -48,10 +48,10 @@ export function ClientToolbar({
                 onChange={(event) => onStatusChange(event.target.value)}
                 className="bg-transparent outline-none"
               >
-                <option value="all">All status</option>
-                <option value="Active">Active</option>
-                <option value="At Risk">At Risk</option>
-                <option value="On Hold">On Hold</option>
+                <option value="all">Semua status</option>
+                <option value="Active">Aktif</option>
+                <option value="At Risk">Berisiko</option>
+                <option value="On Hold">Ditahan</option>
               </select>
             </label>
 
@@ -62,10 +62,10 @@ export function ClientToolbar({
                 onChange={(event) => onTaxStatusChange(event.target.value)}
                 className="bg-transparent outline-none"
               >
-                <option value="all">All tax status</option>
-                <option value="Compliant">Compliant</option>
-                <option value="Needs Review">Needs Review</option>
-                <option value="Pending Audit">Pending Audit</option>
+                <option value="all">Semua status pajak</option>
+                <option value="Compliant">Patuh</option>
+                <option value="Needs Review">Perlu Review</option>
+                <option value="Pending Audit">Menunggu Audit</option>
               </select>
             </label>
           </div>

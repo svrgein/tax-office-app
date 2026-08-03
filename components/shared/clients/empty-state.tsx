@@ -10,16 +10,16 @@ export function EmptyState({ onReset }: EmptyStateProps) {
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
         <SearchX className="h-6 w-6" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold text-foreground">No clients match your filters</h3>
+      <h3 className="mt-4 text-lg font-semibold text-foreground">Tidak ada klien yang sesuai filter</h3>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-        Try adjusting the search terms or reset the filters to browse the full client portfolio.
+        Coba ubah kata pencarian atau reset filter untuk melihat seluruh portofolio klien.
       </p>
       <button
         type="button"
         onClick={onReset}
         className="mt-5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
       >
-        Reset filters
+        Reset filter
       </button>
     </div>
   );

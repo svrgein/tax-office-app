@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -9,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tax Office Management System",
-  description: "Internal tax consultant management platform",
+  title: "Tax Office — Platform Manajemen Pajak Profesional",
+  description: "Platform SaaS manajemen kantor pajak — kelola klien, pekerjaan, invoice, dan dokumen dalam satu dashboard.",
 };
 
 export default function RootLayout({
@@ -22,6 +23,14 @@ export default function RootLayout({
     <html lang="id" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
+        <Toaster
+          position="bottom-right"
+          richColors
+          closeButton
+          toastOptions={{
+            style: { borderRadius: '16px' },
+          }}
+        />
       </body>
     </html>
   );

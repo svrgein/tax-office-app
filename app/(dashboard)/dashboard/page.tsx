@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   AlertCircle,
   ArrowRight,
@@ -9,122 +10,85 @@ import {
   Sparkles,
   Users,
   Wallet,
-} from "lucide-react";
+} from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
+import { getDashboardStats, formatIDR } from '@/services/dashboard';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { SectionCard } from '@/components/shared/dashboard/section-card';
+import { StatCard } from '@/components/shared/dashboard/stat-card';
+import { format } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
 
-import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { SectionCard } from "@/components/shared/dashboard/section-card";
-import { StatCard } from "@/components/shared/dashboard/stat-card";
-
-const stats = [
-  {
-    title: "Total Clients",
-    value: "184",
-    detail: "+12 this month",
-    trend: "up" as const,
-    icon: <Users className="h-5 w-5" />,
-  },
-  {
-    title: "Active Jobs",
-    value: "27",
-    detail: "4 urgent",
-    trend: "up" as const,
-    icon: <Sparkles className="h-5 w-5" />,
-  },
-  {
-    title: "Tax Deadlines Today",
-    value: "8",
-    detail: "2 require follow-up",
-    trend: "down" as const,
-    icon: <CalendarDays className="h-5 w-5" />,
-  },
-  {
-    title: "Pending Invoices",
-    value: "14",
-    detail: "Rp 86.4M open",
-    trend: "down" as const,
-    icon: <Receipt className="h-5 w-5" />,
-  },
-  {
-    title: "Monthly Revenue",
-    value: "Rp 312M",
-    detail: "+8.2% vs last month",
-    trend: "up" as const,
-    icon: <CircleDollarSign className="h-5 w-5" />,
-  },
-];
-
-const deadlines = [
-  {
-    client: "PT Bintang Sejahtera",
-    task: "Annual tax filing",
-    date: "Today • 09:00",
-    priority: "High",
-  },
-  {
-    client: "CV Harmoni Group",
-    task: "VAT reconciliation",
-    date: "Tomorrow • 13:30",
-    priority: "Medium",
-  },
-  {
-    client: "Yayasan Berkah",
-    task: "Corporate tax review",
-    date: "Thu, 10 Jul",
-    priority: "Low",
-  },
-];
-
-const activities = [
-  {
-    title: "Invoice #INV-104 approved",
-    description: "Prepared and sent to PT Putra Abadi",
-    time: "10 mins ago",
-  },
-  {
-    title: "New document uploaded",
-    description: "2024 financial statement for CV Maju",
-    time: "32 mins ago",
-  },
-  {
-    title: "Deadline reminder sent",
-    description: "Follow-up for Alif & Partners",
-    time: "1 hour ago",
-  },
-];
-
-const documents = [
-  {
-    name: "2024 Audit Report.pdf",
-    owner: "Ayu Lestari",
-    size: "4.8 MB",
-  },
-  {
-    name: "Invoice Pack - June.zip",
-    owner: "Rizki Pratama",
-    size: "12.1 MB",
-  },
-  {
-    name: "Tax Assessment Letter.docx",
-    owner: "Nadia Putri",
-    size: "1.2 MB",
-  },
-];
-
-const expenseBreakdown = [
-  { label: "Operations", value: "42%", amount: "Rp 18.4M" },
-  { label: "Staff", value: "31%", amount: "Rp 13.6M" },
-  { label: "Software", value: "17%", amount: "Rp 7.5M" },
-  { label: "Marketing", value: "10%", amount: "Rp 4.4M" },
-];
+export const dynamic = 'force-dynamic';
 
 const quickActions = [
-  { label: "Add Client", icon: <Users className="h-4 w-4" /> },
-  { label: "Add Expense", icon: <Wallet className="h-4 w-4" /> },
-  { label: "Upload Document", icon: <FileText className="h-4 w-4" /> },
-  { label: "Create Invoice", icon: <Plus className="h-4 w-4" /> },
+  { label: 'Add Client', href: '/dashboard/clients', icon: <Users className="h-4 w-4" /> },
+  { label: 'Add Expense', href: '/dashboard/expenses', icon: <Wallet className="h-4 w-4" /> },
+  { label: 'Upload Document', href: '/dashboard/documents', icon: <FileText className="h-4 w-4" /> },
+  { label: 'Create Invoice', href: '/dashboard/invoices', icon: <Plus className="h-4 w-4" /> },
 ];
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let stats;
+  try {
+    stats = await getDashboardStats();
+  } catch {
+    stats = {
+      totalClients: 0,
+      activeJobs: 0,
+      pendingInvoices: 0,
+      pendingInvoiceTotal: 0,
+      dueToday: 0,
+      recentActivities: [],
+      upcomingDeadlines: [],
+      recentDocuments: [],
+    };
+  }
+
+  const displayName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'User';
+  const today = format(new Date(), 'EEEE, d MMMM yyyy', { locale: idLocale });
+
+  const statCards = [
+    {
+      title: 'Total Clients',
+      value: String(stats.totalClients),
+      detail: 'Klien terdaftar',
+      trend: 'up' as const,
+      icon: <Users className="h-5 w-5" />,
+    },
+    {
+      title: 'Active Jobs',
+      value: String(stats.activeJobs),
+      detail: 'Open & in progress',
+      trend: 'up' as const,
+      icon: <Sparkles className="h-5 w-5" />,
+    },
+    {
+      title: 'Deadlines Today',
+      value: String(stats.dueToday),
+      detail: stats.dueToday > 0 ? 'Perlu perhatian' : 'Semua aman',
+      trend: stats.dueToday > 3 ? ('down' as const) : ('up' as const),
+      icon: <CalendarDays className="h-5 w-5" />,
+    },
+    {
+      title: 'Pending Invoices',
+      value: String(stats.pendingInvoices),
+      detail: formatIDR(stats.pendingInvoiceTotal) + ' open',
+      trend: 'down' as const,
+      icon: <Receipt className="h-5 w-5" />,
+    },
+    {
+      title: 'Total Invoice Value',
+      value: formatIDR(stats.pendingInvoiceTotal),
+      detail: 'Belum terbayar',
+      trend: 'up' as const,
+      icon: <CircleDollarSign className="h-5 w-5" />,
+    },
+  ];
+
   return (
     <DashboardShell>
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -136,25 +100,24 @@ export default function DashboardPage() {
             </div>
             <div>
               <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                Welcome back, Aisyah.
+                Selamat datang, {displayName}.
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-                Your practice is running smoothly. You have 8 deadlines today,
-                27 active jobs, and a healthy revenue trend for this month.
+                Anda memiliki {stats.dueToday} deadline hari ini, {stats.activeJobs} pekerjaan aktif, dan {stats.pendingInvoices} invoice yang menunggu.
               </p>
             </div>
           </div>
           <div className="rounded-2xl border border-border/60 bg-background/80 px-4 py-3 text-sm text-muted-foreground">
             <div className="flex items-center gap-2 font-medium text-foreground">
               <CalendarDays className="h-4 w-4 text-primary" />
-              Monday, 27 July 2026
+              {today}
             </div>
-            <p className="mt-1">3 priorities due before noon</p>
+            <p className="mt-1">{stats.dueToday} prioritas hari ini</p>
           </div>
         </header>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {stats.map((stat) => (
+          {statCards.map((stat) => (
             <StatCard key={stat.title} {...stat} />
           ))}
         </section>
@@ -163,132 +126,118 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <SectionCard
               title="Upcoming Tax Deadlines"
-              description="Priority items for the next 3 working days"
+              description="Prioritas 7 hari ke depan"
             >
               <div className="space-y-3">
-                {deadlines.map((item) => (
-                  <div
-                    key={item.client}
-                    className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-background/70 p-4 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <p className="font-medium text-foreground">{item.client}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {item.task}
-                      </p>
+                {stats.upcomingDeadlines.length === 0 ? (
+                  <p className="rounded-2xl border border-border/70 bg-background/70 p-4 text-sm text-muted-foreground">
+                    Tidak ada deadline yang mendekat. 🎉
+                  </p>
+                ) : (
+                  stats.upcomingDeadlines.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-background/70 p-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {item.clients?.name ?? 'Tanpa klien'}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">{item.title}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          item.priority === 'high' ? 'bg-destructive/10 text-destructive' :
+                          item.priority === 'medium' ? 'bg-warning/10 text-warning' :
+                          'bg-muted text-muted-foreground'
+                        }`}>
+                          {item.priority}
+                        </span>
+                        <span className="text-sm text-muted-foreground">{item.due_date}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-warning/10 px-2.5 py-1 text-xs font-medium text-warning">
-                        {item.priority}
-                      </span>
-                      <span className="text-sm text-muted-foreground">{item.date}</span>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </SectionCard>
 
             <SectionCard
-              title="Latest Uploaded Documents"
-              description="Recently shared files for your clients"
+              title="Dokumen Terbaru"
+              description="File terbaru yang diunggah"
             >
               <div className="space-y-3">
-                {documents.map((doc) => (
-                  <div
-                    key={doc.name}
-                    className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/70 p-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
-                        <FileText className="h-4 w-4" />
+                {stats.recentDocuments.length === 0 ? (
+                  <p className="rounded-2xl border border-border/70 bg-background/70 p-4 text-sm text-muted-foreground">
+                    Belum ada dokumen.{' '}
+                    <Link href="/dashboard/documents" className="text-primary underline">Upload sekarang</Link>
+                  </p>
+                ) : (
+                  stats.recentDocuments.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/70 p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+                          <FileText className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{doc.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {doc.clients?.name ?? '—'} • {doc.size ? `${(doc.size / 1024).toFixed(1)} KB` : '—'}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground">{doc.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {doc.owner} • {doc.size}
-                        </p>
-                      </div>
+                      <Link href="/dashboard/documents" className="flex items-center text-sm font-medium text-primary">
+                        View <ArrowRight className="ml-1 h-4 w-4" />
+                      </Link>
                     </div>
-                    <button className="flex items-center text-sm font-medium text-primary">
-                      View <ArrowRight className="ml-1 h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </SectionCard>
           </div>
 
           <div className="space-y-6">
             <SectionCard
-              title="Recent Activities"
-              description="The latest changes across your workspace"
+              title="Aktivitas Terbaru"
+              description="Perubahan terakhir di workspace"
             >
               <div className="space-y-3">
-                {activities.map((activity) => (
-                  <div
-                    key={activity.title}
-                    className="rounded-2xl border border-border/70 bg-background/70 p-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 rounded-full bg-success/10 p-2 text-success">
-                        <AlertCircle className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{activity.title}</p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {activity.description}
-                        </p>
-                        <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                          {activity.time}
-                        </p>
+                {stats.recentActivities.length === 0 ? (
+                  <p className="rounded-2xl border border-border/70 bg-background/70 p-4 text-sm text-muted-foreground">
+                    Belum ada aktivitas.
+                  </p>
+                ) : (
+                  stats.recentActivities.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className="rounded-2xl border border-border/70 bg-background/70 p-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 rounded-full bg-success/10 p-2 text-success">
+                          <AlertCircle className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground capitalize">{activity.action}</p>
+                          <p className="mt-1 text-sm text-muted-foreground">{activity.entity_type}</p>
+                          <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                            {new Date(activity.created_at).toLocaleString('id-ID')}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </SectionCard>
 
-            <SectionCard
-              title="Monthly Expense Summary"
-              description="Spending trend for this month"
-            >
-              <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total</p>
-                    <p className="mt-1 text-3xl font-semibold text-foreground">
-                      Rp 43.9M
-                    </p>
-                  </div>
-                  <div className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-                    -3.1% vs target
-                  </div>
-                </div>
-
-                <div className="mt-5 space-y-3">
-                  {expenseBreakdown.map((item) => (
-                    <div key={item.label}>
-                      <div className="mb-1 flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">{item.label}</span>
-                        <span className="font-medium text-foreground">{item.amount}</span>
-                      </div>
-                      <div className="h-2 rounded-full bg-muted">
-                        <div
-                          className="h-2 rounded-full bg-primary"
-                          style={{ width: item.value }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </SectionCard>
-
-            <SectionCard title="Quick Actions" description="Common tasks to keep momentum">
+            <SectionCard title="Quick Actions" description="Aksi cepat yang sering digunakan">
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                 {quickActions.map((action) => (
-                  <button
+                  <Link
                     key={action.label}
+                    href={action.href}
                     className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-left transition hover:border-primary/40 hover:bg-primary/5"
                   >
                     <span className="flex items-center gap-2 font-medium text-foreground">
@@ -298,7 +247,7 @@ export default function DashboardPage() {
                       {action.label}
                     </span>
                     <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </SectionCard>
