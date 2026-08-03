@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Download, FileText, MoreHorizontal } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 export type DailyExpenseRecord = {
   id: number;

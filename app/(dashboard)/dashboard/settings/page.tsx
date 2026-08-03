@@ -174,7 +174,7 @@ export default function SettingsPage() {
       } else {
         toast.error(data.error || 'Gagal mengirim notifikasi.', { id: 'test-notif' });
       }
-    } catch (err) {
+    } catch {
       toast.error('Terjadi kesalahan jaringan.', { id: 'test-notif' });
     } finally {
       setLoading(false);

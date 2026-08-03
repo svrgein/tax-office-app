@@ -1,7 +1,5 @@
 import { Filter, Search } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
-
 type ClientToolbarProps = {
   search: string;
   onSearchChange: (value: string) => void;

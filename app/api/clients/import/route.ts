@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import type { Database } from '@/types/database.types';
 import * as XLSX from 'xlsx';
 
 export async function POST(req: Request) {

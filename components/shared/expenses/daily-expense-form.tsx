@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarDays, FileText, Paperclip, X } from 'lucide-react';
+import { Paperclip, X } from 'lucide-react';
 import * as z from 'zod';
 
 const dailyExpenseSchema = z.object({
@@ -59,8 +59,7 @@ export function DailyExpenseForm({
     },
   });
 
-  const selectedClient = defaultValues?.client ?? clients[0] ?? '';
-  const selectedCategory = defaultValues?.category ?? categories[0] ?? '';
+
 
   const clientOptions = useMemo(() => clients, [clients]);
   const categoryOptions = useMemo(() => categories, [categories]);

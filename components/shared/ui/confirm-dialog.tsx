@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { XCircle } from 'lucide-react';
 
 type ConfirmDialogProps = {
   title: string;

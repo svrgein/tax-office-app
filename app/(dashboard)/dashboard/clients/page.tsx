@@ -38,7 +38,6 @@ const EMPTY_FORM = {
   tax_id: '',
   pic_name: '',
   pic_email: '',
-  pic_email: '',
   pic_phone: '',
   status: 'active' as 'active' | 'at_risk' | 'on_hold',
   tax_status: 'compliant' as 'compliant' | 'needs_review' | 'pending_audit',
@@ -65,7 +64,7 @@ export default function ClientManagementPage() {
     try {
       const data = await getClients({ search, status: selectedStatus, tax_status: selectedTaxStatus });
       setClients(data);
-    } catch (err) {
+    } catch {
       toast.error('Gagal memuat data klien');
     } finally {
       setLoading(false);
@@ -121,7 +120,7 @@ export default function ClientManagementPage() {
         toast.success('Klien berhasil ditambahkan');
       }
       setModalOpen(false);
-    } catch (err) {
+    } catch {
       toast.error('Gagal menyimpan. Coba lagi.');
     } finally {
       setSaving(false);

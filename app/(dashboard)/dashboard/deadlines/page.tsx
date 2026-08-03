@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { ModulePage } from '@/components/shared/module-page';
 import { SectionCard } from '@/components/shared/dashboard/section-card';
-import { getDeadlines, createDeadline, updateDeadline, deleteDeadline, type DeadlineRow, type DeadlineInsert } from '@/services/deadlines';
+import { getDeadlines, createDeadline, updateDeadline, deleteDeadline, type DeadlineRow } from '@/services/deadlines';
 import { getClients, type ClientRow } from '@/services/clients';
 
 type Client = ClientRow;

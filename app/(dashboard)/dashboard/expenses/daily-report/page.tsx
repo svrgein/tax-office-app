@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Download, FilePlus, FileText, Printer, Search, X } from 'lucide-react';
+import { Download, FilePlus, FileText, Printer, Search } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 import { DashboardShell } from '@/components/layout/dashboard-shell';
@@ -27,7 +27,7 @@ export default function DailyReportPage() {
   const [records, setRecords] = useState<DailyExpenseRecord[]>(mockExpenses);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [dateRange, setDateRange] = useState('2026-07-01 - 2026-07-31');
+  const [dateRange] = useState('2026-07-01 - 2026-07-31');
   const [monthFilter, setMonthFilter] = useState('July');
   const [yearFilter, setYearFilter] = useState('2026');
   const [clientFilter, setClientFilter] = useState('all');

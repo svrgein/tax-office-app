@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Download, FileText, Loader2, Pencil, PlusCircle, Search, Trash2, X } from 'lucide-react';
+import { Loader2, Pencil, PlusCircle, Search, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DashboardShell } from '@/components/layout/dashboard-shell';
@@ -103,7 +103,7 @@ export default function InvoicesPage() {
         setInvoices((prev) => prev.map((i) => (i.id === updated.id ? updated as InvoiceRow : i)));
         toast.success('Invoice diperbarui');
       } else {
-        const created = await createInvoice(
+        await createInvoice(
           { client_id: form.client_id || null, due_date: form.due_date || null, status: form.status, notes: form.notes || null },
           form.items
         );

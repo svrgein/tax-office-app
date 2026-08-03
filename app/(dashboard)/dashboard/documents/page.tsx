@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FileText, FolderOpen, Loader2, Trash2, Upload, X } from 'lucide-react';
+import { FolderOpen, Loader2, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DashboardShell } from '@/components/layout/dashboard-shell';
