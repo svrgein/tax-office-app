@@ -13,7 +13,14 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const workbook = XLSX.read(buffer, { type: 'buffer' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const firstSheetName = workbook.SheetNames[0];
+    if (!firstSheetName) {
+      return NextResponse.json({ error: 'No sheets found in workbook' }, { status: 400 });
+    }
+    const sheet = workbook.Sheets[firstSheetName];
+    if (!sheet) {
+      return NextResponse.json({ error: 'Sheet is empty or invalid' }, { status: 400 });
+    }
     const rows = XLSX.utils.sheet_to_json(sheet);
 
     // TODO: validate rows and insert into Supabase

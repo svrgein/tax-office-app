@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Loader2, Pencil, PlusCircle, Search, Trash2 } from 'lucide-react';
+import { Loader2, Pencil, PlusCircle, Search, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DashboardShell } from '@/components/layout/dashboard-shell';

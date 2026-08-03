@@ -8,10 +8,9 @@ import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { ModulePage } from '@/components/shared/module-page';
 import { SectionCard } from '@/components/shared/dashboard/section-card';
 import { getDocuments, uploadDocument, deleteDocument } from '@/services/documents';
-import { getClients } from '@/services/clients';
-import type { Database } from '@/types/database.types';
+import { getClients, type ClientRow } from '@/services/clients';
 
-type Client = Database['public']['Tables']['clients']['Row'];
+type Client = ClientRow;
 type DocRow = {
   id: string;
   name: string;

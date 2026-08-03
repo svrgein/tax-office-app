@@ -43,7 +43,7 @@ export default function TaxCalculatorPage() {
     const gross = Number(values.monthlyIncome || 0);
     const deductions = Number(values.otherDeductions || 0);
     const dependents = Number(values.dependents || 0);
-    const maritalStatus = values.maritalStatus;
+
 
     const taxableIncome = Math.max(0, gross - deductions - 5000000 - dependents * 1500000);
     const annualIncome = taxableIncome * 12;

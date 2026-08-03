@@ -66,8 +66,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     pendingInvoiceTotal,
     dueToday,
     recentActivities: (activitiesRes.data ?? []) as DashboardStats['recentActivities'],
-    upcomingDeadlines: (upcomingDeadlinesRes.data ?? []) as DashboardStats['upcomingDeadlines'],
-    recentDocuments: (recentDocsRes.data ?? []) as DashboardStats['recentDocuments'],
+    upcomingDeadlines: (upcomingDeadlinesRes.data ?? []) as unknown as DashboardStats['upcomingDeadlines'],
+    recentDocuments: (recentDocsRes.data ?? []) as unknown as DashboardStats['recentDocuments'],
   };
 }
 

@@ -27,7 +27,8 @@ export default function DailyReportPage() {
   const [records, setRecords] = useState<DailyExpenseRecord[]>(mockExpenses);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [dateRange] = useState('2026-07-01 - 2026-07-31');
+
+
   const [monthFilter, setMonthFilter] = useState('July');
   const [yearFilter, setYearFilter] = useState('2026');
   const [clientFilter, setClientFilter] = useState('all');
