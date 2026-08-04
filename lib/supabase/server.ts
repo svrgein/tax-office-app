@@ -2,6 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import type { CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
+
 /**
  * Supabase client for use in Server Components, Server Actions, and Route Handlers.
  * Using untyped client — table types come from database.types.ts directly.
@@ -10,8 +12,8 @@ export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder',
+    getSupabaseUrl(),
+    getSupabaseAnonKey(),
     {
       cookies: {
         getAll() {
