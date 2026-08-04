@@ -41,7 +41,7 @@ export function AppNavbar({ onToggleSidebar }: AppNavbarProps) {
         setUserInitials(email.slice(0, 2).toUpperCase());
       }
     });
-  }, []);
+  }, [supabase.auth]);
 
   // Close dropdowns on outside click
   useEffect(() => {
